@@ -232,26 +232,3 @@ public class AutoBinder : MonoBehaviour
             Instance = null;
     }
 }
-
-/// <summary>
-/// 相机跟随组件 - 自动绑定用
-/// </summary>
-public class CameraFollow : MonoBehaviour
-{
-    private Transform target;
-    private Vector3 offset = new Vector3(0, 10, -8);
-    private float smoothSpeed = 5f;
-
-    public void SetTarget(Transform t) => target = t;
-    public void SetOffset(Vector3 o) => offset = o;
-    public void SetSmoothSpeed(float s) => smoothSpeed = s;
-
-    private void LateUpdate()
-    {
-        if (target == null) return;
-
-        Vector3 desiredPos = target.position + offset;
-        transform.position = Vector3.Lerp(transform.position, desiredPos, smoothSpeed * Time.deltaTime);
-        transform.LookAt(target);
-    }
-}

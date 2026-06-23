@@ -49,13 +49,18 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     public int PlayerCount => playerCount;
     public bool IsSessionHost => isHost;
 
+    // ConnectionStatus 属性（供 GameManager/UIManager 使用）
+    public ConnectionStatus Status { get; private set; } = ConnectionStatus.Disconnected;
+
     // 事件
-    public event Action OnConnectedToServer;
+    public event Action OnConnectedToServerEvent;
     public event Action OnJoinedRoom;
     public event Action OnDisconnected;
     public event Action<PlayerRef> OnPlayerJoinedEvent;
     public event Action<PlayerRef> OnPlayerLeftEvent;
     public event Action<string> OnError;
+    public event Action<ConnectionStatus> OnConnectionStatusChanged;
+    public event Action OnConnectedToMaster;
 
     // 玩家字典
     private Dictionary<PlayerRef, NetworkObject> spawnedPlayers = new Dictionary<PlayerRef, NetworkObject>();
@@ -129,13 +134,16 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
         {
             UpdateState(NetworkState.InRoom, $"已加入房间: {roomName}");
             isHost = Runner.IsSharedModeMasterClient;
-            OnConnectedToServer?.Invoke();
+            SetConnectionStatus(ConnectionStatus.Connected);
+            OnConnectedToServerEvent?.Invoke();
+            OnConnectedToMaster?.Invoke();
             OnJoinedRoom?.Invoke();
             Debug.Log($"[NetworkManager] 连接成功！玩家 ID: {Runner.LocalPlayer.PlayerId}, 是否主机: {isHost}");
         }
         else
         {
             UpdateState(NetworkState.Error, $"连接失败: {result.ShutdownReason}");
+            SetConnectionStatus(ConnectionStatus.Failed);
             OnError?.Invoke(result.ShutdownReason.ToString());
             Debug.LogError($"[NetworkManager] 连接失败: {result.ShutdownReason}");
         }
@@ -149,12 +157,14 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
         if (Runner != null && Runner.IsRunning)
         {
             UpdateState(NetworkState.Disconnecting, "正在断开...");
+            SetConnectionStatus(ConnectionStatus.Disconnected);
             await Runner.Shutdown();
         }
 
         spawnedPlayers.Clear();
         playerCount = 0;
         UpdateState(NetworkState.Disconnected, "已断开");
+        SetConnectionStatus(ConnectionStatus.Disconnected);
         OnDisconnected?.Invoke();
     }
 
@@ -212,6 +222,7 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
         UpdateState(NetworkState.Disconnected, $"连接关闭: {shutdownReason}");
+        SetConnectionStatus(ConnectionStatus.Disconnected);
         spawnedPlayers.Clear();
         OnDisconnected?.Invoke();
     }
@@ -219,12 +230,14 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     public void OnConnectedToServer(NetworkRunner runner)
     {
         UpdateState(NetworkState.Connected, "已连接到服务器");
-        OnConnectedToServer?.Invoke();
+        SetConnectionStatus(ConnectionStatus.Connected);
+        OnConnectedToServerEvent?.Invoke();
     }
 
     public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
     {
         UpdateState(NetworkState.Disconnected, $"断开连接: {reason}");
+        SetConnectionStatus(ConnectionStatus.Disconnected);
         OnDisconnected?.Invoke();
     }
 
@@ -254,6 +267,19 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     #endregion
 
     #region 私有方法
+
+    /// <summary>
+    /// 更新 ConnectionStatus 并触发事件
+    /// </summary>
+    private void SetConnectionStatus(ConnectionStatus status)
+    {
+        var oldStatus = Status;
+        Status = status;
+        if (oldStatus != status)
+        {
+            OnConnectionStatusChanged?.Invoke(status);
+        }
+    }
 
     /// <summary>
     /// 生成玩家角色
@@ -311,6 +337,71 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
 
     #endregion
 
+    #region 公共网络操作方法（供 GameManager/UIManager 调用）
+
+    /// <summary>
+    /// 连接到服务器
+    /// </summary>
+    public void ConnectToServer()
+    {
+        SetConnectionStatus(ConnectionStatus.Connecting);
+        _ = StartGameAsync();
+    }
+
+    /// <summary>
+    /// 加入指定房间
+    /// </summary>
+    public void JoinRoom(string roomName)
+    {
+        if (Runner != null && Runner.IsRunning)
+        {
+            Debug.Log($"[NetworkManager] 已在房间中，尝试切换到房间: {roomName}");
+            // Fusion Shared 模式下，需要重新连接以切换房间
+            _ = ReconnectAsync();
+        }
+        else
+        {
+            this.roomName = roomName;
+            ConnectToServer();
+        }
+    }
+
+    /// <summary>
+    /// 创建房间
+    /// </summary>
+    public void CreateRoom(string roomName)
+    {
+        this.roomName = roomName;
+        SetConnectionStatus(ConnectionStatus.Connecting);
+        _ = StartGameAsync();
+    }
+
+    /// <summary>
+    /// 随机加入房间
+    /// </summary>
+    public void JoinRandomRoom()
+    {
+        if (Runner != null && Runner.IsRunning)
+        {
+            Debug.Log("[NetworkManager] 已在房间中");
+            return;
+        }
+
+        SetConnectionStatus(ConnectionStatus.Connecting);
+        _ = StartGameAsync();
+    }
+
+    /// <summary>
+    /// 断开连接
+    /// </summary>
+    public void Disconnect()
+    {
+        SetConnectionStatus(ConnectionStatus.Disconnected);
+        _ = ShutdownAsync();
+    }
+
+    #endregion
+
     private void OnDestroy()
     {
         if (Runner != null && Runner.IsRunning)
@@ -335,4 +426,15 @@ public enum NetworkState
     InRoom,
     Disconnecting,
     Error
+}
+
+/// <summary>
+/// 连接状态枚举（供 GameManager/UIManager 使用）
+/// </summary>
+public enum ConnectionStatus
+{
+    Disconnected,
+    Connecting,
+    Connected,
+    Failed
 }
