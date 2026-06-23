@@ -1,0 +1,33 @@
+# Unity Cloud Build Configuration
+# This file helps Unity Cloud Build automatically configure your project
+
+project:
+  name: UnityCoopPuppetGame
+  unityVersion: 6000.0.x
+  
+targets:
+  - name: Android-Release
+    platform: android
+    
+    build:
+      scriptingBackend: IL2CPP
+      targetArchitectures:
+        - ARMv7
+        - ARM64
+      minimumApiLevel: 26
+      targetApiLevel: 34
+      
+    settings:
+      bundleId: com.yourcompany.unitycooppuppetgame
+      buildNumber: auto
+      
+    scenes:
+      - Assets/Scenes/MainMenu.unity
+      - Assets/Scenes/MainGame.unity
+      
+    preBuildSteps:
+      - echo "Starting Unity Cloud Build..."
+      - echo "Photon SDK will be auto-installed by PhotonSDKAutoInstaller.cs"
+      
+    postBuildSteps:
+      - echo "Build completed!"
