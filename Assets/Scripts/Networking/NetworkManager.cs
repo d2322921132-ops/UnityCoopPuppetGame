@@ -53,7 +53,7 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     public ConnectionStatus Status { get; private set; } = ConnectionStatus.Disconnected;
 
     // 事件
-    public event Action OnConnectedToServerEvent;
+    public event Action OnServerConnected;
     public event Action OnJoinedRoom;
     public event Action OnDisconnected;
     public event Action<PlayerRef> OnPlayerJoinedEvent;
@@ -135,7 +135,7 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
             UpdateState(NetworkState.InRoom, $"已加入房间: {roomName}");
             isHost = Runner.IsSharedModeMasterClient;
             SetConnectionStatus(ConnectionStatus.Connected);
-            OnConnectedToServerEvent?.Invoke();
+            OnServerConnected?.Invoke();
             OnConnectedToMaster?.Invoke();
             OnJoinedRoom?.Invoke();
             Debug.Log($"[NetworkManager] 连接成功！玩家 ID: {Runner.LocalPlayer.PlayerId}, 是否主机: {isHost}");
@@ -231,7 +231,7 @@ public class NetworkManager : MonoBehaviour, INetworkRunnerCallbacks
     {
         UpdateState(NetworkState.Connected, "已连接到服务器");
         SetConnectionStatus(ConnectionStatus.Connected);
-        OnConnectedToServerEvent?.Invoke();
+        OnServerConnected?.Invoke();
     }
 
     public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
