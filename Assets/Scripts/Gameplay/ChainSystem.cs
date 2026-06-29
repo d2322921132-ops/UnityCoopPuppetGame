@@ -34,7 +34,7 @@ public class ChainSystem : MonoBehaviour
     [SerializeField] private LineRenderer chainRenderer;
     [SerializeField] private AnimationCurve chainWaveCurve;
 
-    [Header("事件")]
+    // 事件
     public event Action<TensionLevel, float> OnTensionChanged;
     public event Action OnChainBreak;
     public event Action OnPartnerPulled;

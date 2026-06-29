@@ -16,8 +16,10 @@ public enum NetworkState
 {
     Disconnected,
     Initializing,
+    SDKMissing,
     Connecting,
     Connected,
+    JoiningRoom,
     InRoom,
     Disconnecting,
     Error

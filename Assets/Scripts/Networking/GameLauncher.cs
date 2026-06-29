@@ -324,18 +324,4 @@ public class GameLauncher : MonoBehaviour
     #endregion
 }
 
-/// <summary>
-/// 网络连接状态枚举
-/// </summary>
-public enum NetworkState
-{
-    Disconnected,      // 未连接
-    Initializing,      // 初始化中
-    SDKMissing,        // SDK 未安装
-    Connecting,        // 连接中
-    Connected,         // 已连接服务器
-    JoiningRoom,       // 加入房间中
-    InRoom,            // 在房间中
-    Disconnecting,     // 断开中
-    Error              // 错误
-}
+// NetworkState 枚举已在 NetworkManager.cs 中定义
