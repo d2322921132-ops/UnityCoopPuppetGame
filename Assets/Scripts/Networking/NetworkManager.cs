@@ -579,7 +579,7 @@ public class NetworkManager : MonoBehaviour
 
         SetConnectionStatus(ConnectionStatus.Connecting);
         UpdateState(NetworkState.Connecting, "本地模式：模拟连接中...");
-        _ = SimulateLocalConnection();
+        SimulateLocalConnection();
     }
 
     /// <summary>
@@ -614,7 +614,7 @@ public class NetworkManager : MonoBehaviour
     {
         Debug.Log("[NetworkManager] 本地模式：随机加入房间（单机模式无实际效果）");
         SetConnectionStatus(ConnectionStatus.Connecting);
-        _ = SimulateLocalConnection();
+        SimulateLocalConnection();
     }
 
     /// <summary>

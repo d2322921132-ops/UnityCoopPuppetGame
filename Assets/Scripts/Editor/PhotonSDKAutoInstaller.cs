@@ -63,7 +63,7 @@ public class PhotonSDKAutoInstaller
                     );
                 };
 
-                await Task.Run(() => client.DownloadFileAsync(SDK_DOWNLOAD_URL, tempPath).Wait());
+                await Task.Run(() => client.DownloadFile(SDK_DOWNLOAD_URL, tempPath));
             }
 
             EditorUtility.ClearProgressBar();
