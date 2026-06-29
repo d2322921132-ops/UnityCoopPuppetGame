@@ -83,7 +83,7 @@ public class ChainPhysicsTest : MonoBehaviour
         }
 
         // 添加测试控制器脚本
-        cube.AddComponent<CubeTestController>();
+        cube.AddComponent<ChainCubeController>();
 
         return cube;
     }
@@ -177,9 +177,9 @@ public class ChainPhysicsTest : MonoBehaviour
 }
 
 /// <summary>
-/// 方块测试控制器 - 用于键盘测试控制
+/// 锁链测试方块控制器 - 用于 ChainPhysicsTest 场景
 /// </summary>
-public class CubeTestController : MonoBehaviour
+public class ChainCubeController : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 8f;
