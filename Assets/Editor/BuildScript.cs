@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using UnityEditor.Build.Reporting;
 using System.IO;
 
 public class BuildScript
