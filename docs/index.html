@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UnityCoopPuppetGame - 实木木偶双人协作游戏 技术文档</title>
+  <meta name="description" content="实木木偶双人协作游戏技术展示文档 - Unity 6.5 URP / Photon Fusion 2 / 跨平台联机">
+
+  <style>
+    @font-face {
+      font-family: 'Noto Sans CJK SC';
+      src: url('./_shared/fonts/NotoSansCJKsc-Regular.ttf') format('truetype');
+      font-weight: 400;
+    }
+  </style>
+
+  <style>
+    :root {
+      --bg: #0a1628;
+      --bg-card: #0f1f38;
+      --bg-code: #1e293b;
+      --bg-nav: rgba(10, 22, 40, 0.92);
+      --ink: #94a3b8;
+      --ink-light: #cbd5e1;
+      --ink-white: #e2e8f0;
+      --accent: #00d4ff;
+      --accent-dim: rgba(0, 212, 255, 0.15);
+      --accent-border: rgba(0, 212, 255, 0.4);
+      --accent-glow: rgba(0, 212, 255, 0.25);
+      --font: 'Noto Sans CJK SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'Fira Code', 'Consolas', 'Monaco', monospace;
+      --max: 960px;
+      --radius: 10px;
+      --radius-sm: 6px;
+      --radius-pill: 50px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; scroll-padding-top: 72px; }
+    body {
+      font-family: var(--font);
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ============ Sticky Navigation ============ */
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-nav);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    }
+    .site-nav .nav-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 0 1.5rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .site-nav .nav-inner::-webkit-scrollbar { display: none; }
+    .site-nav a {
+      display: inline-block;
+      padding: 1rem 1rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      white-space: nowrap;
+      transition: color 0.2s, background 0.2s;
+      border-bottom: 2px solid transparent;
+    }
+    .site-nav a:hover {
+      color: var(--ink-white);
+      background: rgba(0, 212, 255, 0.05);
+    }
+
+    /* ============ Hero Section ============ */
+    .hero {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 3rem 1.5rem 2rem;
+      text-align: center;
+    }
+    .hero-images {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .hero-images img {
+      width: 220px;
+      height: 260px;
+      object-fit: cover;
+      border-radius: var(--radius);
+      border: 1px solid var(--accent-border);
+      box-shadow: 0 0 20px var(--accent-glow), 0 4px 24px rgba(0, 0, 0, 0.4);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hero-images img:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 0 30px var(--accent-glow), 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+    .hero h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+      letter-spacing: 0.04em;
+    }
+    .hero .subtitle {
+      font-size: 1rem;
+      color: var(--ink-light);
+      margin-bottom: 1.25rem;
+      line-height: 1.6;
+    }
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.3rem 0.85rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border-radius: var(--radius-pill);
+      white-space: nowrap;
+    }
+    .tag--version {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    .tag--tech {
+      background: rgba(0, 212, 255, 0.08);
+      color: var(--accent);
+      border: 1px solid var(--accent-border);
+    }
+
+    /* ============ Main Content ============ */
+    .content {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    /* Section heading */
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 2.5rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--accent);
+      display: inline-block;
+    }
+
+    .section-desc {
+      font-size: 0.95rem;
+      color: var(--ink);
+      margin-bottom: 1.25rem;
+    }
+
+    /* Sub heading */
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--ink-white);
+      margin: 1.5rem 0 0.6rem;
+    }
+
+    /* Bullet list */
+    .doc-list {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 1rem;
+    }
+    .doc-list li {
+      position: relative;
+      padding-left: 1.25rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--ink);
+      line-height: 1.75;
+    }
+    .doc-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.7em;
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    /* Code block */
+    .code-block {
+      background: var(--bg-code);
+      border: 1px solid rgba(0, 212, 255, 0.12);
+      border-radius: var(--radius-sm);
+      padding: 1.25rem 1.5rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.7;
+      color: var(--ink-light);
+      margin: 1rem 0 1.5rem;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 212, 255, 0.3) transparent;
+    }
+    .code-block::-webkit-scrollbar { height: 6px; }
+    .code-block::-webkit-scrollbar-track { background: transparent; }
+    .code-block::-webkit-scrollbar-thumb {
+      background: rgba(0, 212, 255, 0.3);
+      border-radius: 3px;
+    }
+
+    /* Inline code */
+    code:not(.code-block code) {
+      background: var(--bg-code);
+      padding: 0.15em 0.45em;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.85em;
+      color: var(--accent);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+    }
+
+    /* Card group for sub-sections */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0 1.5rem;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid rgba(0, 212, 255, 0.1);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+      border-color: var(--accent-border);
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+    .card h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.4rem;
+    }
+    .card p {
+      font-size: 0.85rem;
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    /* Steps (numbered) */
+    .steps {
+      counter-reset: step-counter;
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0 1.5rem;
+    }
+    .steps li {
+      counter-increment: step-counter;
+      position: relative;
+      padding: 0.75rem 0 0.75rem 3rem;
+      margin-bottom: 0.25rem;
+      font-size: 0.9rem;
+      color: var(--ink);
+      border-left: 1px solid rgba(0, 212, 255, 0.15);
+      margin-left: 1rem;
+    }
+    .steps li::before {
+      content: counter(step-counter);
+      position: absolute;
+      left: -0.85rem;
+      top: 0.65rem;
+      width: 1.7rem;
+      height: 1.7rem;
+      background: var(--bg-code);
+      border: 1px solid var(--accent-border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    /* ============ Footer ============ */
+    .doc-footer {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      border-top: 1px solid rgba(0, 212, 255, 0.1);
+      text-align: center;
+      font-size: 0.8rem;
+      color: rgba(148, 163, 184, 0.5);
+    }
+
+    /* ============ Responsive ============ */
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 1.6rem; }
+      .hero .subtitle { font-size: 0.88rem; }
+      .hero-images img { width: 140px; height: 170px; }
+      .hero-images { gap: 0.75rem; }
+      .content { padding: 1.5rem 1rem 3rem; }
+      .section-title { font-size: 1.25rem; }
+      .card-grid { grid-template-columns: 1fr; }
+      .site-nav a { padding: 0.75rem 0.6rem; font-size: 0.8rem; }
+    }
+
+    /* Anchor offset for sticky nav */
+    [id] { scroll-margin-top: 72px; }
+  </style>
+</head>
+<body>
+
+  <!-- ============ Navigation ============ -->
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <a href="#overview">项目概述</a>
+      <a href="#networking">核心联机</a>
+      <a href="#sync">玩家同步</a>
+      <a href="#touch">触摸控制</a>
+      <a href="#crossplatform">跨平台</a>
+      <a href="#setup">挂载步骤</a>
+      <a href="#build">打包发布</a>
+    </div>
+  </nav>
+
+  <!-- ============ Hero ============ -->
+  <section class="hero">
+    <div class="hero-images">
+      <img src="assets/puppet_hero.jpg" alt="木偶角色展示 - 左侧">
+      <img src="assets/puppet_hero.jpg" alt="木偶角色展示 - 右侧">
+    </div>
+    <h1>实木木偶双人协作游戏</h1>
+    <p class="subtitle">纯手工实木雕刻木偶 &middot; Photon Fusion 联机 &middot; 青橙电影调色 &middot; 跨平台互通</p>
+    <div class="hero-tags">
+      <span class="tag tag--version">v2.0</span>
+      <span class="tag tag--tech">Unity 6.5 URP</span>
+      <span class="tag tag--tech">Photon Fusion 2</span>
+      <span class="tag tag--tech">Firebase</span>
+      <span class="tag tag--tech">Android + iOS</span>
+      <span class="tag tag--tech">公网联机</span>
+    </div>
+  </section>
+
+  <!-- ============ Content ============ -->
+  <main class="content">
+
+    <!-- ===== 1. 项目概述 ===== -->
+    <h2 class="section-title" id="overview">项目概述</h2>
+    <p class="section-desc">
+      UnityCoopPuppetGame 是一款基于 Unity 引擎的双人协作木偶游戏。两名玩家通过锁链相连，在精心设计的关卡中携手解谜、共闯险境。游戏采用纯代码生成几何体模型呈现实木木偶角色，配合青橙电影级调色风格，打造独特的视觉体验。
+    </p>
+
+    <h3>核心特性</h3>
+    <ul class="doc-list">
+      <li><strong>渲染管线</strong> — Unity 6.5 URP（Universal Render Pipeline），支持高质量后处理效果与移动端优化渲染</li>
+      <li><strong>电影级调色</strong> — 青橙互补色（Teal &amp; Orange）电影调色方案，营造沉浸式的视觉氛围</li>
+      <li><strong>实时联机</strong> — 基于 Photon Fusion 2 的状态同步框架，公网环境下低延迟双人协作</li>
+      <li><strong>锁链协作机制</strong> — 双人通过物理锁链连接，移动距离受限，需密切配合推进关卡</li>
+      <li><strong>木偶角色系统</strong> — 纯代码生成几何体组合模型，无需外部美术资产即可构建完整的木偶角色</li>
+      <li><strong>跨平台互通</strong> — 支持 Android 与 iOS 公网联机互通，内置 NAT 穿透与中继服务器回退机制</li>
+    </ul>
+
+    <!-- ===== 2. 核心联机 ===== -->
+    <h2 class="section-title" id="networking">核心联机</h2>
+    <p class="section-desc">
+      游戏联机系统基于 Photon Fusion 2 构建，采用状态同步（State Authority）模式，提供自动连接、房间管理和网络生命周期管理。整体网络架构分为多个职责单一的模块，便于维护和扩展。
+    </p>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4>NetworkManager.cs</h4>
+        <p>网络管理总入口，统筹所有网络模块的生命周期。负责初始化各子管理器并协调联机流程。</p>
+      </div>
+      <div class="card">
+        <h4>ConnectionManager.cs</h4>
+        <p>全自动连接管理器，处理 Photon 服务器的连接/断开/重连逻辑，内置断线重连和错误恢复机制。</p>
+      </div>
+      <div class="card">
+        <h4>GameLauncher.cs</h4>
+        <p>游戏启动器，管理从主菜单到游戏场景的完整启动流程，包含房间创建、匹配和场景加载。</p>
+      </div>
+      <div class="card">
+        <h4>FusionNetworkManager.cs</h4>
+        <p>Fusion 网络核心管理器，封装 Fusion Runner 的启动、关闭以及网络事件回调处理。</p>
+      </div>
+      <div class="card">
+        <h4>FusionPlayerSpawner.cs</h4>
+        <p>网络玩家生成器，根据连接状态自动实例化或销毁玩家预制体，支持延迟加载。</p>
+      </div>
+      <div class="card">
+        <h4>PhotonAppIdConfig.cs</h4>
+        <p>Photon App ID 配置组件，提供 Inspector 面板直接填写 App ID，避免硬编码密钥。</p>
+      </div>
+    </div>
+
+    <h3>房间机制</h3>
+    <ul class="doc-list">
+      <li>运行后 <code>ConnectionManager</code> 自动连接 Photon Cloud，无需手动操作</li>
+      <li>若不存在可加入的房间，<code>GameLauncher</code> 自动创建新房间并等待另一名玩家加入</li>
+      <li>若已存在可加入房间，自动加入并同步玩家状态</li>
+      <li>房间支持 2 人协作模式，可通过 <code>FusionSettings</code> 修改房间参数</li>
+    </ul>
+
+    <!-- ===== 3. 玩家同步 ===== -->
+    <h2 class="section-title" id="sync">玩家同步</h2>
+    <p class="section-desc">
+      玩家同步系统负责将本地玩家的状态（位置、旋转、动画参数等）实时同步到远程客户端。同时支持 Fusion 网络版和本地调试版的切换。
+    </p>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4>PlayerSync.cs</h4>
+        <p>核心同步组件，挂载在玩家预制体上。使用 Fusion 的 <code>[Networked]</code> 属性同步变换数据，处理插值与预测。</p>
+      </div>
+      <div class="card">
+        <h4>PlayerMovement.cs</h4>
+        <p>移动控制器，处理玩家输入到角色移动的映射。支持键盘、触屏等不同输入源，内置锁链约束。</p>
+      </div>
+      <div class="card">
+        <h4>CharacterControllerMobile.cs</h4>
+        <p>移动端专用控制器，针对触屏操作优化移动手感，包含虚拟摇杆和滑动方向检测。</p>
+      </div>
+      <div class="card">
+        <h4>PuppetBuilder.cs</h4>
+        <p>木偶模型生成器，运行时通过代码生成几何体组合（身体、四肢、关节）构建完整的木偶角色模型。</p>
+      </div>
+      <div class="card">
+        <h4>PlayerController.cs</h4>
+        <p>玩家高层控制器，协调移动、交互、动画状态机等子系统。</p>
+      </div>
+      <div class="card">
+        <h4>NetworkPlayer.cs</h4>
+        <p>网络玩家标识组件，区分本地/远程玩家，管理玩家角色在网络上分配的权限。</p>
+      </div>
+    </div>
+
+    <!-- ===== 4. 触摸控制 ===== -->
+    <h2 class="section-title" id="touch">触摸控制</h2>
+    <p class="section-desc">
+      移动端触摸控制系统提供直观的操作体验，包含动态虚拟摇杆、动作按钮、技能按钮以及统一的输入管理器，支持多点触控操作。
+    </p>
+
+    <div class="card-grid">
+      <div class="card">
+        <h4>DynamicJoystick.cs</h4>
+        <p>动态虚拟摇杆，触摸屏幕任意位置生成摇杆，松手后自动消失。支持灵敏度调节和方向死区配置。</p>
+      </div>
+      <div class="card">
+        <h4>MobileActionButton.cs</h4>
+        <p>通用动作按钮，用于跳跃、拾取、互动等基础操作。支持长按与短按识别，可自定义图标和回调。</p>
+      </div>
+      <div class="card">
+        <h4>SkillButton.cs</h4>
+        <p>技能按钮组件，支持技能冷却计时、释放效果触发和 MP 消耗逻辑，可扩展为多种技能类型。</p>
+      </div>
+      <div class="card">
+        <h4>MobileInputManager.cs</h4>
+        <p>移动端输入总管理器，统一收集摇杆和按钮的输入信号，转换为标准化的输入数据供 PlayerMovement 消费。</p>
+      </div>
+    </div>
+
+    <h3>输入处理流程</h3>
+    <ul class="doc-list">
+      <li><code>DynamicJoystick</code> 输出方向向量 → <code>MobileInputManager</code> 汇总</li>
+      <li><code>MobileActionButton</code> / <code>SkillButton</code> 发送动作事件 → <code>MobileInputManager</code> 转发</li>
+      <li><code>PlayerMovement</code> 读取 <code>MobileInputManager</code> 数据执行移动和动作</li>
+    </ul>
+
+    <!-- ===== 5. 跨平台 ===== -->
+    <h2 class="section-title" id="crossplatform">跨平台</h2>
+    <p class="section-desc">
+      项目支持 Android 与 iOS 双平台公网联机互通。通过 Photon Cloud 的 NAT 穿透和中继服务器技术，确保不同网络环境下的玩家都能稳定连接。
+    </p>
+
+    <h3>CrossPlatformConfig.cs</h3>
+    <ul class="doc-list">
+      <li>跨平台配置中心，管理平台差异化的参数（屏幕适配、输入类型、图形质量等）</li>
+      <li>运行时自动检测当前平台并加载对应配置</li>
+      <li>支持在 Inspector 中配置各平台参数预设</li>
+    </ul>
+
+    <h3>公网互通方案</h3>
+    <ul class="doc-list">
+      <li>Photon Fusion 2 内置 NAT 穿透（STUN），优先建立 P2P 直连以获得最低延迟</li>
+      <li>当 P2P 不可用时，自动回退到 Photon Relay（中继服务器），确保连接成功率</li>
+      <li>Android 与 iOS 客户端共享同一 Photon App ID，使用相同的 Region 配置</li>
+      <li>网络延迟自适应：Fusion 的 Tick System 根据网络条件动态调整同步频率</li>
+    </ul>
+
+    <!-- ===== 6. 挂载步骤 ===== -->
+    <h2 class="section-title" id="setup">挂载步骤</h2>
+    <p class="section-desc">
+      以下是将网络系统挂载到 Unity 场景中的详细步骤。按照顺序操作即可快速搭建联机框架。
+    </p>
+
+    <ol class="steps">
+      <li>在场景 Hierarchy 中右键 → <code>Create Empty</code>，将空物体命名为 <code>NetworkManager</code></li>
+      <li>选中 NetworkManager 物体，在 Inspector 中点击 <code>Add Component</code>，搜索并挂载 <code>NetworkManager.cs</code></li>
+      <li>在 Inspector 中找到 <code>Photon App Id</code> 字段，填入你在 Photon Dashboard 申请的 App ID（可使用 <code>PhotonAppIdConfig</code> 组件管理）</li>
+      <li>在 Project 窗口中创建玩家预制体（右键 → Create → Prefab），将 <code>PlayerSync</code>、<code>PlayerMovement</code>、<code>PuppetBuilder</code> 等组件挂载到预制体根节点</li>
+      <li>选回 NetworkManager 物体，在 Inspector 的 <code>Player Prefab</code> 槽位中拖入刚才创建的玩家预制体</li>
+      <li>按下 Play 运行，<code>ConnectionManager</code> 将自动连接 Photon Cloud，<code>GameLauncher</code> 自动创建或加入房间</li>
+    </ol>
+
+    <!-- ===== 7. 打包发布 ===== -->
+    <h2 class="section-title" id="build">打包发布</h2>
+    <p class="section-desc">
+      项目内置 Editor 构建脚本，可一键执行 Android APK 打包流程。以下为手动配置和打包的详细说明。
+    </p>
+
+    <h3>Android 打包配置</h3>
+    <ul class="doc-list">
+      <li>菜单 <code>File → Build Settings</code>，将 <code>MainMenu.unity</code> 和 <code>MainGame.unity</code> 添加到 Scenes In Build 列表</li>
+      <li>确保 <code>MainMenu.unity</code> 位于索引 0（首个启动场景）</li>
+      <li>Platform 选择 <code>Android</code>，点击 <code>Switch Platform</code></li>
+    </ul>
+
+    <h3>Player Settings 配置项</h3>
+    <ul class="doc-list">
+      <li><strong>Company Name</strong>: 填写你的公司或团队名称</li>
+      <li><strong>Product Name</strong>: <code>UnityCoopPuppetGame</code></li>
+      <li><strong>Version</strong>: <code>2.0.0</code></li>
+      <li><strong>Bundle Identifier</strong>: <code>com.yourcompany.unitycooppuppetgame</code></li>
+      <li><strong>Minimum API Level</strong>: Android 8.0 (API Level 26)</li>
+      <li><strong>Target API Level</strong>: Android 14 (API Level 34)</li>
+      <li><strong>Scripting Backend</strong>: IL2CPP（推荐用于发布版本）</li>
+      <li><strong>Target Architectures</strong>: ARM64</li>
+      <li><strong>Install Location</strong>: Automatic</li>
+    </ul>
+
+    <h3>APK 构建</h3>
+    <ul class="doc-list">
+      <li>菜单 <code>File → Build Settings → Build</code>（或使用 <code>BuildScript.cs</code> Editor 脚本一键构建）</li>
+      <li>构建完成后在 <code>Build/Android</code> 目录找到生成的 APK 文件</li>
+    </ul>
+
+    <h3>签名配置</h3>
+    <ul class="doc-list">
+      <li>菜单 <code>Project Settings → Player → Android → Publishing Settings → Keystore Manager</code></li>
+      <li>使用已有的 keystore 或点击 <code>Create</code> 创建新的签名文件</li>
+      <li>填写 Keystore 密码、Key Alias 和 Key Alias 密码</li>
+      <li>确保 <code>Custom Keystore</code> 已勾选并指向正确的 .keystore 文件</li>
+    </ul>
+
+    <!-- ===== 文件结构 ===== -->
+    <h2 class="section-title" id="filestructure">文件结构</h2>
+    <p class="section-desc">
+      以下是项目 Assets 目录的完整结构。每个文件均附有简要功能说明。
+    </p>
+
+    <div class="code-block">Assets/
+├── Editor/
+│   ├── BuildScript.cs              <span style="color:#64748b">// 构建脚本 - 一键打包 APK</span>
+│   └── PhotonSDKAutoInstaller.cs   <span style="color:#64748b">// Photon SDK 自动安装器</span>
+├── Scripts/
+│   ├── Audio/
+│   │   └── AudioManager.cs         <span style="color:#64748b">// 音频管理器 - BGM / SFX 控制</span>
+│   ├── CloudSave/
+│   │   └── CloudSaveManager.cs     <span style="color:#64748b">// 云存档管理器 - Firebase 远程存档</span>
+│   ├── Core/
+│   │   └── AutoBinder.cs           <span style="color:#64748b">// 自动绑定器 - Inspector 组件自动关联</span>
+│   ├── Gameplay/
+│   │   ├── ChainPhysicsTest.cs     <span style="color:#64748b">// 锁链物理测试</span>
+│   │   ├── ChainSystem.cs          <span style="color:#64748b">// 锁链系统 - 约束与张力计算</span>
+│   │   ├── CoopObjective.cs        <span style="color:#64748b">// 协作目标 - 双人关卡目标</span>
+│   │   ├── GameBootstrap.cs        <span style="color:#64748b">// 游戏引导启动 - 初始化所有子系统</span>
+│   │   ├── GameManager.cs          <span style="color:#64748b">// 游戏管理器 - 全局游戏状态</span>
+│   │   ├── InteractableObject.cs   <span style="color:#64748b">// 可交互对象 - 关卡交互元素</span>
+│   │   └── PlayerStats.cs          <span style="color:#64748b">// 玩家属性 - HP / 得分 / 状态</span>
+│   ├── Input/
+│   │   ├── DynamicJoystick.cs      <span style="color:#64748b">// 动态摇杆 - 触屏方向输入</span>
+│   │   ├── InputManager.cs         <span style="color:#64748b">// 输入管理器 - 统一输入接口</span>
+│   │   ├── MobileActionButton.cs   <span style="color:#64748b">// 动作按钮 - 跳跃/互动</span>
+│   │   ├── MobileInputManager.cs   <span style="color:#64748b">// 移动端输入 - 触屏信号汇总</span>
+│   │   └── SkillButton.cs          <span style="color:#64748b">// 技能按钮 - 技能释放与冷却</span>
+│   ├── Networking/
+│   │   ├── ConnectionManager.cs    <span style="color:#64748b">// 连接管理器 - 自动连接/重连</span>
+│   │   ├── CrossPlatformConfig.cs  <span style="color:#64748b">// 跨平台配置 - 平台差异化参数</span>
+│   │   ├── FusionNetworkManager.cs <span style="color:#64748b">// Fusion 网络管理器</span>
+│   │   ├── FusionPlayerSpawner.cs  <span style="color:#64748b">// Fusion 玩家生成器</span>
+│   │   ├── FusionSettings.cs       <span style="color:#64748b">// Fusion 配置 - Tick/房间参数</span>
+│   │   ├── FusionSetupWizard.cs    <span style="color:#64748b">// Fusion 设置向导 - Editor 工具</span>
+│   │   ├── GameLauncher.cs         <span style="color:#64748b">// 游戏启动器 - 房间与场景</span>
+│   │   ├── NetworkManager.cs       <span style="color:#64748b">// 网络管理器 - 总入口</span>
+│   │   ├── NetworkPlayer.cs         <span style="color:#64748b">// 网络玩家 - 权限标识</span>
+│   │   ├── PhotonAppIdConfig.cs     <span style="color:#64748b">// Photon App ID 配置</span>
+│   │   └── PhotonFusionSetup.cs     <span style="color:#64748b">// Photon Fusion 配置</span>
+│   ├── Player/
+│   │   ├── PlayerController.cs     <span style="color:#64748b">// 玩家控制器 - 高层控制</span>
+│   │   ├── PlayerMovement.cs       <span style="color:#64748b">// 玩家移动 - 移动逻辑</span>
+│   │   ├── PlayerSync.cs           <span style="color:#64748b">// 玩家同步 - 网络状态同步</span>
+│   │   └── PuppetBuilder.cs        <span style="color:#64748b">// 木偶构建器 - 代码生成模型</span>
+│   ├── UI/
+│   │   ├── ChainTensionMeter.cs     <span style="color:#64748b">// 锁链张力条 - 张力可视化</span>
+│   │   ├── TensionMeterSimple.cs   <span style="color:#64748b">// 简易张力条 - 轻量方案</span>
+│   │   └── UIManager.cs            <span style="color:#64748b">// UI 管理器 - 界面状态</span>
+│   └── Utils/
+│       ├── CameraFollow.cs         <span style="color:#64748b">// 相机跟随 - 双人镜头</span>
+│       ├── ChainLinkVisual.cs      <span style="color:#64748b">// 锁链视觉 - 链条渲染</span>
+│       ├── CubeTestController.cs   <span style="color:#64748b">// 测试控制器 - 编辑器调试</span>
+│       ├── EasingAnimations.cs      <span style="color:#64748b">// 缓动动画 - UI 过渡效果</span>
+│       ├── HapticFeedback.cs        <span style="color:#64748b">// 震动反馈 - 触觉反馈</span>
+│       └── SceneTransitionManager.cs <span style="color:#64748b">// 场景过渡 - 转场动画</span>
+├── Scenes/
+│   ├── MainMenu.unity              <span style="color:#64748b">// 主菜单场景</span>
+│   └── MainGame.unity              <span style="color:#64748b">// 游戏主场景</span></div>
+
+  </main>
+
+  <!-- ============ Footer ============ -->
+  <footer class="doc-footer">
+    UnityCoopPuppetGame v2.0 &middot; 技术展示文档 &middot; Built with Unity 6.5 + Photon Fusion 2
+  </footer>
+
+</body>
+</html>
