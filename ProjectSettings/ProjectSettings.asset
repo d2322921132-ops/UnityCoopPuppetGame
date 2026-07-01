@@ -32,14 +32,9 @@ PlayerSettings:
     <required>kLocationUsageDescription</required>
     <required>kMicrophoneUsageDescription</required>
     <required>kInternetUsageDescription</required>
-    <required>kInternetUsageDescription</required>
     internetUsageDescription: "This app requires internet access for multiplayer features."
     <required>kTargetOSVersionString</required>
     targetOSVersionString: 12.0
-    <required>kRequireARKitSupport</required>
-    <required>kCameraUsageDescription</required>
-    <required>kLocationUsageDescription</required>
-    <required>kMicrophoneUsageDescription</required>
   productName: UnityCoopPuppetGame
   companyName: DefaultCompany
   defaultIcon: {instanceID: 0}

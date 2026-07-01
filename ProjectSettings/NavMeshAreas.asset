@@ -1,0 +1,12 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!471 &1
+NavMeshAreas:
+  m_ObjectHideFlags: 0
+  areas:
+  - name: Walkable
+    cost: 1
+  - name: Not Walkable
+    cost: 255
+  - name: Jump
+    cost: 2
