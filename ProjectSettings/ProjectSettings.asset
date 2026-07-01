@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!129 &1
+PlayerSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 26
+  productGUID: a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+  Android:
+    <required>kAndroidSupportedAspectRatio</required>
+    <required>kAndroidMinSdkVersion</required>
+    androidMinSdkVersion: 26
+    <required>kAndroidTargetSdkVersion</required>
+    androidTargetSdkVersion: 0
+    <required>kAndroidInstallLocation</required>
+    androidInstallLocation: 1
+    <required>kAndroidScriptingBackend</required>
+    androidScriptingBackend: 1
+    <required>kAndroidTargetArchitectures</required>
+    androidTargetArchitectures: 5
+    <required>kAndroidSplashScreen</required>
+    <required>kAndroidTVCompatibility</required>
+    androidTVCompatibility: 0
+  Standalone:
+    <required>kFullscreenMode</required>
+    fullscreenMode: 1
+    defaultScreenWidth: 1920
+    defaultScreenHeight: 1080
+  iPhone:
+    <required>PushNotificationUsageDescription</required>
+    <required>kRequiresARKitSupport</required>
+    <required>kCameraUsageDescription</required>
+    <required>kLocationUsageDescription</required>
+    <required>kMicrophoneUsageDescription</required>
+    <required>kInternetUsageDescription</required>
+    <required>kInternetUsageDescription</required>
+    internetUsageDescription: "This app requires internet access for multiplayer features."
+    <required>kTargetOSVersionString</required>
+    targetOSVersionString: 12.0
+    <required>kRequireARKitSupport</required>
+    <required>kCameraUsageDescription</required>
+    <required>kLocationUsageDescription</required>
+    <required>kMicrophoneUsageDescription</required>
+  productName: UnityCoopPuppetGame
+  companyName: DefaultCompany
+  defaultIcon: {instanceID: 0}
+  cloudProjectId: ""
+  cloudOrganizationId: ""
+  useUserAccountID: 0
